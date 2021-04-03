@@ -1,0 +1,2 @@
+deleteComments=1
+renameFunctions=true
