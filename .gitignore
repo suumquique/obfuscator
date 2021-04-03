@@ -341,3 +341,5 @@ healthchecksdb
 
 *.txt
 *.exe
+
+!config.txt
