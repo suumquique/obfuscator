@@ -14,8 +14,8 @@ using namespace std;
 #define XOR_KEY 521
 
 // Шифруем строку с помощью XOR-шифрования\
-просто\
-легко очень
+разносим на строки\
+test comment
 string encryptString(string s) {
 	for (size_t i = 0; i < s.length(); i++) {
 		s[i] ^= XOR_KEY;
@@ -23,9 +23,22 @@ string encryptString(string s) {
 
 	return s;
 }
-/* Циркачество
-Клоунство
-Цирк */
+
+void test(){
+	int x = 1;
+	return;
+}
+
+int* test_name222(char* dt){
+	int y = 8;
+	return &y;
+}
+
+
+/* Многострочный
+Комментарий
+Для
+Теста*/
 int main(void) {
 	SetConsoleCP(RUS_ENCODING);
 	SetConsoleOutputCP(RUS_ENCODING);
@@ -46,4 +59,5 @@ int main(void) {
 	}
 
 	cout << "Доступ к программе получен." << endl;
+	system("pause");
 }
