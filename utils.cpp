@@ -24,12 +24,20 @@ void normalizeEncoding() {
 	SetConsoleOutputCP(CP_UTF8);
 }
 
-wstring replaceAll(wstring str, wstring from, wstring to) {
-	size_t start_pos = 0;
-	while ((start_pos = str.find(from, start_pos)) != wstring::npos) {
-		str.replace(start_pos, from.length(), to);
-		start_pos += to.length(); // Handles case where 'to' is a substring of 'from'
-	}
+wstring getRandomString(size_t length)
+{
 
+	auto randchar = []() -> wchar_t
+	{
+		const char charset[] =
+			"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+			"abcdefghijklmnopqrstuvwxyz"
+			"________________________";
+		const size_t max_index = (sizeof(charset) - 1);
+		return charset[rand() % max_index];
+	};
+
+	wstring str(length, 0);
+	generate_n(str.begin(), length, randchar);
 	return str;
 }
