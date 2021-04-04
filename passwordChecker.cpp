@@ -13,7 +13,9 @@ using namespace std;
 // Случайное число для шифрования пароля с помощью XOR
 #define XOR_KEY 521
 
-// Шифруем строку с помощью XOR-шифрования
+// Шифруем строку с помощью XOR-шифрования\
+просто\
+легко очень
 string encryptString(string s) {
 	for (size_t i = 0; i < s.length(); i++) {
 		s[i] ^= XOR_KEY;
@@ -21,7 +23,9 @@ string encryptString(string s) {
 
 	return s;
 }
-
+/* Циркачество
+Клоунство
+Цирк */
 int main(void) {
 	SetConsoleCP(RUS_ENCODING);
 	SetConsoleOutputCP(RUS_ENCODING);
