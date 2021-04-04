@@ -341,5 +341,6 @@ healthchecksdb
 
 *.txt
 *.exe
+test.cpp
 
 !config.txt
