@@ -7,7 +7,8 @@
 #include <fcntl.h>
 #include <cctype>
 #include <sstream>
-#include <algorithm>
+#include <regex>
+#include <vector>
 
 using namespace std;
 
@@ -58,8 +59,11 @@ Config* parseConfigFile(wifstream& configFile);
 ѕараметры обфускации должны быть заданы в переданном конфиге.*/
 wstring obfuscate(wifstream& codeFile, Config* config);
 
-// ‘ункци€, замен€юща€ все вхождени€ строки from на строку to в контейнере - строке str
-wstring replaceAll(wstring str, wstring from, wstring to);
+// √енерирует случайную строку заданной длины
+wstring getRandomString(size_t len);
 
 // ‘ункци€, удал€юща€ комментарии из строки, котора€ представл€ет из себ€ полученный из файла код C, C++ или C#
 wstring deleteComments(wstring codeText);
+
+// ‘ункци€, измен€юща€ название всех функцией в коде, представленном в виде строки, и возвращающа€ измененную строку с кодом
+wstring renameFunctions(wstring codeText);
