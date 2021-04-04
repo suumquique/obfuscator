@@ -24,9 +24,9 @@ wstring deleteComments(wstring codeText) {
 	size_t endPosStandardComment; // Позиция конца обычного комментария
 
 	// Идем по циклу, пока в файле есть комментарии
-	while (startPosMultistringComment != string::npos || startPosStandardComment != string::npos) {
+	while (startPosMultistringComment != wstring::npos || startPosStandardComment != wstring::npos) {
 		// Если многострочный комментарий начинается раньше стандартного, вырезаем его полностью
-		if (startPosMultistringComment < startPosStandardComment && startPosMultistringComment != string::npos) {
+		if (startPosMultistringComment < startPosStandardComment && startPosMultistringComment != wstring::npos) {
 			// Ищем конец многострочного комментария
 			endPosMultistringComment = codeText.find(endMultistringCommentSymbols) + endMultistringCommentSymbols.length();
 
@@ -34,7 +34,7 @@ wstring deleteComments(wstring codeText) {
 		}
 
 		// Если наоборот, вырезаем полностью стандартный
-		else if (startPosStandardComment < startPosMultistringComment && startPosStandardComment != string::npos) {
+		else if (startPosStandardComment < startPosMultistringComment && startPosStandardComment != wstring::npos) {
 			// Ищем конец стандартного комментария - он заканчивается при переносе строки
 			endPosStandardComment = codeText.find(standardCommentEndSymbol, startPosStandardComment);
 			// Однако, стандартные комментарии можно переносить на следующую строку символом обратного слеша\
