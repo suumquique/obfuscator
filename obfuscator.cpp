@@ -11,6 +11,10 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 
 	if (config->deleteComments) codeText = deleteComments(codeText);
 	if (config->renameFunctions) codeText = renameFunctions(codeText);
+	if (config->renameVariables) codeText = renameVariables(codeText);
+
+	wofstream test("test.cpp");
+	test << codeText;
 
 	return codeText;
 }
@@ -62,9 +66,9 @@ wstring renameFunctions(wstring codeText) {
 	wstring textCopy = codeText; // Копия строки с кодом для поиска в ней
 
 	/*Регулярное выражение для поиска функции.
-	Ищет так: должен быть тип, после которого идет пробел, затем название функции, начинающееся с буквы, потом открывающая скобка,
+	Ищет так: должен быть тип, после которого идет пробел (или несколько), затем название функции, начинающееся с буквы, потом открывающая скобка,
 	в которой либо аргументы функции, либо пусто, закрывающая скобка, какое-то количество пробелов и открывающая блок фигурная скобка.*/
-	wregex functionRegExp(LR"([\w*]+ ([A-Za-z]\w*)\([\w *&]*\)\s*\{)");
+	wregex functionRegExp(LR"([\w*]+ +([A-Za-z]\w*)\([\w *&]*\)\s*\{)");
 
 	wsmatch currentMatch; // Текущее совпадение (найденная функция)
 	wstring currentFunctionName; // Имя текущей функции
@@ -102,5 +106,52 @@ wstring renameFunctions(wstring codeText) {
 		codeText = regex_replace(codeText, functionNameRegExp, newFunctionReplacement);
 	}
 
+	return codeText;
+}
+
+BOOL isValidVariableType(wstring variableType) {
+	if (variableType == L"namespace" || variableType == L"return") return FALSE;
+	return TRUE;
+}
+
+wstring renameVariables(wstring codeText) {
+	// Копия текста кода для работы с ним (поиск, меняющий строку)
+	wstring textCopy = codeText;
+
+	/*Регулярное выражение для поиска объявления переменных в коде программы.
+	Перед переменной сначала указан тип, затем некое количество пробелов (от одного и более), затем само имя переменной,
+	потом либо конец объявления, то есть символ ";", либо присваивание чего-нибудь ей, то есть снова некое количество пробелов и
+	символ присванивания - "=", либо переменная объявляется как аргумент функции, в таком случае там скобка.
+	Кроме того, может быть объявление нескольких переменных поряд, что тоже нужно обработать, то есть там в конце может быть запятая.
+	Так же, требуется не забыть о классах и структурах, которые могут использовать uniform-инициализацию, для этого добавляем "{"*/
+	wregex variablesRegex(LR"((\w+)[*&]* +([A-Za-z]\w*) *(?:;| +=|,|\) *[;{]| *\{| *\((?:(?:[\w]+)(?:, )?)+\);)+)");
+
+	wsmatch currentMatch; // Текущее совпадение - найденное объявление переменной
+	wstring currentVariableName; // Текущее имя
+	wstring currentVariableType; // Тип текущей переменной для проверки корректности
+
+	wregex variableNameRegExp; // Регулярное выражение для поиска переменной по имени в тексте программы и его замене
+	wstring newVariableReplacement; // Новое имя, на которое будет заменена переменная
+
+	while (regex_search(textCopy, currentMatch, variablesRegex)) {
+		currentVariableType = currentMatch[1].str();
+		currentVariableName = currentMatch[2].str();
+
+		// Может быть такое, что нашло не переменную (а, например, использование поля имен). Такое исключаем
+		if (isValidVariableType(currentVariableType)) {
+			/* Создаем регулярное выражение для поиска каждого упоминания имени переменной во всем коде программы.
+			Искомое значение не должно находиться в строке и не должно быть частью другого названия (функции и переменной),
+			поэтому смотрим, чтобы перед названием была не буква и не цифра, а также не символ новой строк - "*/
+			variableNameRegExp = wregex(L"([^\"\\w])" + currentVariableName + L"([^\"\\w])");
+
+			// Указываем, на что будем заменять: случайная строка и найденные символы справа и слева, которые мы удалили
+			newVariableReplacement = L"$1" + getRandomString((rand() % 8) + 7) + L"$2";
+			// Заменяем во всем тексте по вышеуказанному регулярному выражению
+			codeText = regex_replace(codeText, variableNameRegExp, newVariableReplacement);
+		}
+
+		textCopy = currentMatch.suffix();
+	}
+	
 	return codeText;
 }
