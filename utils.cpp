@@ -1,7 +1,7 @@
 #include "main.h"
 
 // Ќекоторые базовые типы €зыка C (в строковом представлении) дл€ создани€ случайных переменных или функций
-vector<wstring> basicTypes{ L"int", L"char", L"long", L"unsigned", L"long long", L"short", L"unsigned short", L"double", L"float" };
+vector<wstring> basicTypes{ L"int", L"char", L"long", L"unsigned", L"long long", L"short", L"unsigned short", L"unsigned long", L"unsigned char" };
 
 wifstream openAndCheckFile(wstring inputPrompt) {
 	wstring filePath;
@@ -57,13 +57,13 @@ size_t getLinesNumberInText(wstring codeText) {
 	return i;
 }
 
-wstring getRandomVariableInitializationString() {
+wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue, BOOL createPointers) {
 	wstring variableString; // ќбща€ строка дл€ вставки случайной переменной, включающа€ в себ€ тип, им€, пробельные символы и т.д.
 	wstring variableType; // “ип текущей переменной
 	wstring variableName; // »м€ текущей переменной
 	char variableValue; // «начение текущей переменной (так как все базовые переменные можно представить в формате числа)
-	BOOL isVariablePointer = rand() % 4 == 0; // —лучайным образом решаем, будет ли указателем
-	BOOL hasVariableValue = rand() % 3 != 0; // —лучайным образом решаем, будет ли переменна€ иметь значение
+	BOOL isVariablePointer = createPointers && rand() % 3 == 0; // —лучайным образом решаем, будет ли указателем
+	BOOL hasVariableValue = alwaysSetVariableValue || rand() % 3 != 0; // —лучайным образом решаем, будет ли переменна€ иметь значение
 
 	// √енерируем случайное им€ переменной случайной длины
 	variableName = getRandomString(RANDOM_NAME_LENGTH);
