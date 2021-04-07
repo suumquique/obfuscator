@@ -27,6 +27,8 @@ wifstream openAndCheckFile(wstring inputPrompt);
 #define WHITESPACE_FREQUENCY_IN_COMMENTS (rand() % 8)
 // Определение конца строки (переноса) в файле в формате wstring
 #define LINE_BREAK wstring(L"\n")
+// Символ, обозначающий указатель в коде программы, в строковом представлении
+#define POINTER_SYMBOL wstring(L"*")
 // Символы начала стандартного комментария в коде C и С++
 #define START_STANDARD_COMMENT_SYMBOLS wstring(L"//")
 // Символ, которым всегда кончается стандартный однострочный комментарий в коде C и С++
@@ -38,6 +40,8 @@ wifstream openAndCheckFile(wstring inputPrompt);
 
 // Максимальная длина "мусорного" комментария для добавления без учета пробелов
 #define MAX_COMMENT_LENGTH ((rand() % 80) + 20)
+// Длина случайного имени для переменных и функций (для замены текущих или добавлениях новых)
+#define RANDOM_NAME_LENGTH ((rand() % 8) + 7)
 
 // Константа, показывающая, какая строка в конфигурационном файле отвечает за флаг удаления комментов (удалять или оставлять)
 #define CONFIG_DELETE_COMMENTS L"deleteComments"
@@ -99,6 +103,9 @@ wstring obfuscate(wifstream& codeFile, Config* config);
 // Генерирует случайную строку заданной длины
 wstring getRandomString(size_t len);
 
+// Генерируем случайную строку, содержащую инициализацию переменной случайного типа и имеющую случайное значение
+wstring getRandomVariableInitializationString();
+
 /* Находит место в коде, куда можно вставить цикл, комментарий или переменную, не изменив функциональность программы.
 Второй аргумент - тип вставляемого значения, поскольку места для вставки для функций, циклов и переменных разные - 
 например, функции требуется вставлять в глобальную область видимости */
@@ -115,6 +122,15 @@ wstring renameVariables(wstring codeText);
 
 // Функция, добавляющая в код бессмысленные комментарии
 wstring addTrashComments(wstring codeText);
+
+// Функция, добавляющая в код бессмысленные переменные
+wstring addTrashVariables(wstring codeText);
+
+// Функция, добавляющая в код бессмысленные циклы
+wstring addTrashLoops(wstring codeText);
+
+// Функция, добавляющая в код бессмысленные функции
+wstring addTrashFunctions(wstring codeText);
 
 // Проверяет, находится ли указанный инедекс в запрещенном интервале в тексте программы
 BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex);

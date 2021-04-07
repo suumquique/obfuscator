@@ -1,5 +1,8 @@
 #include "main.h"
 
+// Ќекоторые базовые типы €зыка C (в строковом представлении) дл€ создани€ случайных переменных или функций
+vector<wstring> basicTypes{ L"int", L"char", L"long", L"unsigned", L"long long", L"short", L"unsigned short", L"double", L"float" };
+
 wifstream openAndCheckFile(wstring inputPrompt) {
 	wstring filePath;
 
@@ -52,6 +55,38 @@ size_t getLinesNumberInText(wstring codeText) {
 	while (getline(text, line)) i++;
 
 	return i;
+}
+
+wstring getRandomVariableInitializationString() {
+	wstring variableString; // ќбща€ строка дл€ вставки случайной переменной, включающа€ в себ€ тип, им€, пробельные символы и т.д.
+	wstring variableType; // “ип текущей переменной
+	wstring variableName; // »м€ текущей переменной
+	char variableValue; // «начение текущей переменной (так как все базовые переменные можно представить в формате числа)
+	BOOL isVariablePointer = rand() % 4 == 0; // —лучайным образом решаем, будет ли указателем
+	BOOL hasVariableValue = rand() % 3 != 0; // —лучайным образом решаем, будет ли переменна€ иметь значение
+
+	// √енерируем случайное им€ переменной случайной длины
+	variableName = getRandomString(RANDOM_NAME_LENGTH);
+	// ѕолучаем случайный базовый тип
+	variableType = basicTypes[rand() % basicTypes.size()];
+	// ¬ 1/4 случаев добавим в тип текущей переменной значок указател€, чтобы получить не просто обычный тип, а указатель
+	if (isVariablePointer) variableType += POINTER_SYMBOL;
+
+	// —оставл€ем строку, но пока не полную: не присваиваем переменной значение
+	variableString = LINE_BREAK + variableType + L' ' + variableName;
+	// ¬ 2/3 случаев присвоим переменной какое-нибудь значение
+	if (hasVariableValue) {
+		/* ѕолучаем случайное значение переменной, если она не €вл€етс€ указателем, если она указатель, единственным 
+		возможным значением будет ноль (NULL) */
+		variableValue = isVariablePointer ? 0 : rand() % CHAR_MAX;
+		// ƒобавл€ем его к объ€влению нашей переменной
+		variableString += wstring(L" = ") + to_wstring(variableValue);
+	}
+
+	// ƒобавл€ем инструкцию конца блока инициализации
+	variableString += L';';
+
+	return variableString;
 }
 
 // »щем среди массива интервал тот, у которого минимальное значение начальной позиции

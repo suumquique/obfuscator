@@ -13,6 +13,7 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 	if (config->renameFunctions) codeText = renameFunctions(codeText);
 	if (config->renameVariables) codeText = renameVariables(codeText);
 	if (config->addTrashComments) codeText = addTrashComments(codeText);
+	if (config->addTrashVariables) codeText = addTrashVariables(codeText);
 
 	wofstream test("test.cpp");
 	test << codeText;
@@ -96,7 +97,7 @@ wstring renameFunctions(wstring codeText) {
 
 		/* Генерируем рандомное имя функции, от 7 до 15 символов длиной, добавляем символы, которые попали в регулярное выражение
 		* с начала и с конца (чтобы не пропал пробел в начале и скобка после имени функции) */
-		newFunctionReplacement = wstring(L"$1") + getRandomString((rand() % 8) + 7) + wstring(L"$2");
+		newFunctionReplacement = wstring(L"$1") + getRandomString(RANDOM_NAME_LENGTH) + wstring(L"$2");
 
 		// Заменяем текущее имя на новое имя функции во всем тексте программы
 		codeText = regex_replace(codeText, functionNameRegExp, newFunctionReplacement);
@@ -141,7 +142,7 @@ wstring renameVariables(wstring codeText) {
 			variableNameRegExp = wregex(L"([^\"\\w])" + currentVariableName + L"([^\"\\w])");
 
 			// Указываем, на что будем заменять: случайная строка и найденные символы справа и слева, которые мы удалили
-			newVariableReplacement = L"$1" + getRandomString((rand() % 8) + 7) + L"$2";
+			newVariableReplacement = L"$1" + getRandomString(RANDOM_NAME_LENGTH) + L"$2";
 			// Заменяем во всем тексте по вышеуказанному регулярному выражению
 			codeText = regex_replace(codeText, variableNameRegExp, newVariableReplacement);
 		}
@@ -176,9 +177,35 @@ wstring addTrashComments(wstring codeText) {
 		else currentComment = START_MULTISTRING_COMMENT_SYMBOLS + currentComment + END_MULTRISTRING_COMMENT_SYMBOLS;
 
 		// Получаем корректный индекс для вставки комментария и добавляем его в текст программы
-		size_t currentInsertIndex = findIndexToInsert(codeText, insertElement::COMMENT);
+		currentInsertIndex = findIndexToInsert(codeText, insertElement::COMMENT);
 		codeText = codeText.insert(currentInsertIndex, currentComment);
 	}
 
+	return codeText;
+}
+
+wstring addTrashVariables(wstring codeText) {
+	// Считаем, сколько переменных будем добавлять
+	size_t numberOfVariables = getLinesNumberInText(codeText) / INSERTION_FREQUENCY_BY_LINES_NUMBER * FREQUENCY_COEFFICIENT;
+	wstring currentVariableString; // Строка, содержащая инициализацию текущей переменной
+	size_t currentInsertIndex; // Индекс для вставки текущей переменной в программу
+
+	for (size_t i = 0; i < numberOfVariables; i++) {
+		// Получаем случайную переменную
+		currentVariableString = getRandomVariableInitializationString();
+
+		// Получаем корректный индекс для вставки переменной и добавляем его в текст программы
+		currentInsertIndex = findIndexToInsert(codeText, insertElement::VARIABLE);
+		codeText = codeText.insert(currentInsertIndex, currentVariableString);
+	}
+
+	return codeText;
+}
+
+wstring addTrashLoops(wstring codeText) {
+	return codeText;
+}
+
+wstring addTrashFunctions(wstring codeText) {
 	return codeText;
 }

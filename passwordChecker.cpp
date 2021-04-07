@@ -4,6 +4,10 @@
 #include <string>
 #include <bitset>
 
+#define TEST 2 + 2 + \
+4
+#define TEST_STRING "te;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;te"
+
 using namespace std;
 string encryptString(string s);
 
@@ -32,6 +36,7 @@ void test(){
 
 int* test_name222(char* dt){
 	int y = 8;
+	float arr[20];
 	return &y;
 }
 
