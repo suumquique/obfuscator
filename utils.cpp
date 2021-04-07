@@ -42,6 +42,18 @@ wstring getRandomString(size_t length)
 	return str;
 }
 
+size_t getLinesNumberInString(wstring codeText) {
+	// Преобразуем строку с кодом в строковый поток, чтобы из него можно было читать с помощью getline
+	wistringstream text;
+	text.str(codeText);
+
+	wstring line;
+	size_t i = 0;
+	while (getline(text, line)) i++;
+
+	return i;
+}
+
 BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 	wstring startMultistringCommentSymbols = L"/*"; // Символы, с которых всегда начинается мультистрочный комментарий
 	wstring endMultistringCommentSymbols = L"*/"; // Символы, которыми заканчивается многострочный комментарий
@@ -101,9 +113,49 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 }
 
 size_t findIndexToInsert(wstring codeText, insertElement insertElementType) {
+	size_t insertIndex = 0; // Индекс, по которому можно будет вставить какой-нибудь элемент
+	wchar_t endBlockSymbol = L';'; // Символ конца блока, после которого можно вставлять циклы, комментарии и переменные
+	wchar_t startFunctionSymbol = L'{'; // Символ начала глобального блока (функции)
+	wchar_t endFunctionSymbol = L'}'; // Символ конца глобального блока (другой функции), после которого можно вставлять функции
+	vector<size_t> availableIndexes; // Массив индексов, по которым доступна вставка
+	size_t openParenthesesNumber = 0; // Количество открытых фигурных скобок
+
 	/*Поскольку мы ищем место для вставки либо функции, либо переменной/цикла/комментария, то нам соответственно требуется знать
 	тип вставки, поскольку функцию можно вставлять только в глобальную область видимости, тогда как все остальное можно вставлять
 	после завершения любой операции, то есть после символа ";". */
+	if (insertElementType == insertElement::FUNCTION) {
+		/*Чтобы искать место для вставки только в глобальной области видимости (вне функций), то будем идти по тексту программы и 
+		считать фигурные скобки - "{" и "}". Глобальная область - когда количество открывающих совпадает с количеством закрывающих,
+		то есть, все блоки закрыты.*/
 
-	return 0;
+		for (size_t i = 0; i < codeText.length(); i++) {
+			
+			/* Будем считать, что переданная нам программа валидна, и не бывает такого, что есть закрывающая фигурная скобка
+			* в тексте программы, если ранее не было открывающей */
+			if (codeText[i] == startFunctionSymbol && !isInProhibitedInterval(codeText, i)) openParenthesesNumber++;
+			if (codeText[i] == endFunctionSymbol && !isInProhibitedInterval(codeText, i)) openParenthesesNumber--;
+
+			/*Если текущий символ - конец блока или конец функции, и при этом блок расположен в глобальном простанстве, то есть
+			количество открывающих и закрывающих скобок совпадает, и данный символ не расположен в запрещенном интервале,
+			добавляем его в доступные индексы для вставки функции*/
+			if ((codeText[i] == endBlockSymbol || codeText[i] == endFunctionSymbol) && !isInProhibitedInterval(codeText, i) && openParenthesesNumber == 0) {
+				availableIndexes.push_back(i + 1);
+			}
+		}
+	}
+	else {
+		// Ищем все символы завершения блоков
+		while ((insertIndex = codeText.find(endBlockSymbol, insertIndex)) != wstring::npos) {
+			// Смотрим, находится ли текущий индекс в запрещенном интервале, если да - после него ничего вставлять нельзя
+			if (!isInProhibitedInterval(codeText, insertIndex)) {
+				// Поскольку вставка должна идти по индексу после символа конца блока, добавляем единицу
+				availableIndexes.push_back(insertIndex + 1);
+			}
+			// Увеличиваем индекс на единицу, чтобы при следующем поиске найти следующий символ конца блока
+			insertIndex++;
+		}
+	}
+
+	// Возвращаем случайный индекс из списка тех, куда доступна вставка
+	return availableIndexes[rand() % availableIndexes.size()];
 }

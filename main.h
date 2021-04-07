@@ -18,6 +18,10 @@ void normalizeEncoding();
 // Открывает файл и, если он открылся корректно, возвращает поток для его чтения
 wifstream openAndCheckFile(wstring inputPrompt);
 
+/*Количество вставок различных "мусорных" элементов на число строк в программе. По умолчанию - 1 вставка на 50 строк,
+однако обычно количество рандомится делением этой константы на число от 1 до 10 (то есть, от 1 до 10 вставок на 50 строк)*/
+#define INSERTION_FREQUENCY_BY_LINES_NUMBER 50
+
 // Константа, показывающая, какая строка в конфигурационном файле отвечает за флаг удаления комментов (удалять или оставлять)
 #define CONFIG_DELETE_COMMENTS L"deleteComments"
 // Строка из конфига, отвечающая за флаг изменения имен переменных
@@ -51,7 +55,7 @@ typedef struct _config {
 } Config;
 
 // Возможные элементы для вставки в текст программы
-enum insertElement {COMMENT, VARIABLE, FUNCTION, LOOP};
+enum class insertElement {COMMENT, VARIABLE, FUNCTION, LOOP};
 
 /*Фунция парсит переданный ей конфигурационный файл построчно, разбивая каждую строку на имя флага и
 его значение, принимая его за true или false. Возвращает вышеописанную структуру Config, в которой установлены все имеющиеся
@@ -84,3 +88,6 @@ wstring addTrashComments(wstring codeText);
 
 // Проверяет, находится ли указанный инедекс в запрещенном интервале в тексте программы
 BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex);
+
+// Получает количество строк (то есть, переносов строк) в файле с кодом, который представлен в виде строки codeText
+size_t getLinesNumberInString(wstring codeText);
