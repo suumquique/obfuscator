@@ -159,8 +159,6 @@ wstring addTrashComments(wstring codeText) {
 	commentType currentCommentType; // Тип текущего комментария - многострочный или однострочный (стандартный)
 	size_t currentInsertIndex; // Индекс в тексте для добавления текущего комментария
 
-	wcout << numberOfComments << endl;
-
 	for (size_t i = 0; i < numberOfComments; i++) {
 		// Получаем случайную строку из бессмысленных символов
 		currentComment = getRandomString(MAX_COMMENT_LENGTH);
