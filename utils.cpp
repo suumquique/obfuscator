@@ -42,7 +42,7 @@ wstring getRandomString(size_t length)
 	return str;
 }
 
-size_t getLinesNumberInString(wstring codeText) {
+size_t getLinesNumberInText(wstring codeText) {
 	// ѕреобразуем строку с кодом в строковый поток, чтобы из него можно было читать с помощью getline
 	wistringstream text;
 	text.str(codeText);

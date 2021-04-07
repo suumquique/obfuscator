@@ -90,4 +90,4 @@ wstring addTrashComments(wstring codeText);
 BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex);
 
 // Получает количество строк (то есть, переносов строк) в файле с кодом, который представлен в виде строки codeText
-size_t getLinesNumberInString(wstring codeText);
+size_t getLinesNumberInText(wstring codeText);
