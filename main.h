@@ -50,6 +50,9 @@ typedef struct _config {
 	BOOL addTrashComments;
 } Config;
 
+// Возможные элементы для вставки в текст программы
+enum insertElement {COMMENT, VARIABLE, FUNCTION, LOOP};
+
 /*Фунция парсит переданный ей конфигурационный файл построчно, разбивая каждую строку на имя флага и
 его значение, принимая его за true или false. Возвращает вышеописанную структуру Config, в которой установлены все имеющиеся
 в конфигурационном файле флаги (однако, стоит уточнить: те флаги, значение которых не указано в файле, по умолчанию имеют значение false)*/
@@ -62,6 +65,11 @@ wstring obfuscate(wifstream& codeFile, Config* config);
 // Генерирует случайную строку заданной длины
 wstring getRandomString(size_t len);
 
+/* Находит место в коде, куда можно вставить цикл, комментарий или переменную, не изменив функциональность программы.
+Второй аргумент - тип вставляемого значения, поскольку места для вставки для функций, циклов и переменных разные - 
+например, функции требуется вставлять в глобальную область видимости */
+size_t findIndexToInsert(wstring codeText, insertElement insertElementType);
+
 // Функция, удаляющая комментарии из строки, которая представляет из себя полученный из файла код C, C++ или C#
 wstring deleteComments(wstring codeText);
 
@@ -70,3 +78,9 @@ wstring renameFunctions(wstring codeText);
 
 // Функция, изменяющая названия всех переменных в коде
 wstring renameVariables(wstring codeText);
+
+// Функция, добавляющая в код бессмысленные комментарии
+wstring addTrashComments(wstring codeText);
+
+// Проверяет, находится ли указанный инедекс в запрещенном интервале в тексте программы
+BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex);
