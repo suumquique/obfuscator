@@ -25,10 +25,12 @@ wifstream openAndCheckFile(wstring inputPrompt);
 #define FREQUENCY_COEFFICIENT ((rand() % 10) + 1)
 // Частота появления пробела в случайном комментарии
 #define WHITESPACE_FREQUENCY_IN_COMMENTS (rand() % 8)
+// Определение конца строки (переноса) в файле в формате wstring
+#define LINE_BREAK wstring(L"\n")
 // Символы начала стандартного комментария в коде C и С++
 #define START_STANDARD_COMMENT_SYMBOLS wstring(L"//")
 // Символ, которым всегда кончается стандартный однострочный комментарий в коде C и С++
-#define STANDARD_COMMENT_END_SYMBOL L'\n'
+#define STANDARD_COMMENT_END_SYMBOL LINE_BREAK
 // Символы, с которых всегда начинается многострочный комментарий в коде C и С++
 #define START_MULTISTRING_COMMENT_SYMBOLS wstring(L"/*")
 // Символы, которыми всегда заканчивается многострочный комментарий в коде C и С++
@@ -36,7 +38,6 @@ wifstream openAndCheckFile(wstring inputPrompt);
 
 // Максимальная длина "мусорного" комментария для добавления без учета пробелов
 #define MAX_COMMENT_LENGTH ((rand() % 80) + 20)
-
 
 // Константа, показывающая, какая строка в конфигурационном файле отвечает за флаг удаления комментов (удалять или оставлять)
 #define CONFIG_DELETE_COMMENTS L"deleteComments"
@@ -54,6 +55,16 @@ wifstream openAndCheckFile(wstring inputPrompt);
 #define CONFIG_ADD_TRASH_LOOPS L"trashLoops"
 // Строка из конфига, отвечающая за флаг добавления бессмысленных комментариев в код программы
 #define CONFIG_ADD_TRASH_COMMENTS L"trashComments"
+
+/*Структура, описывающая запрещенный интервал. Это интервал (с индекса по индекс в тексте программы), в который нельзя добавлять
+* циклы, инициализацию переменных, комментарии и так далее, потому что это либо не будет иметь смысла, либо нарушит работу программы.
+* Для примера возьмем стандартный, однострочный интервал: строка начала - "//", строка конца - "\n", перенос - "\".*/
+struct ProhibitedInterval {
+	size_t startPos; // Текущая стартовая позиция
+	wstring start; // Признак начала запрещенного интервала
+	wstring end; // Признак окончания запрещенного интервала
+	wchar_t intervalBreak; // Перенос запрещенного интервала, если есть (экранирующий символ, убирающий признак окончания, его может не быть)
+};
 
 /*Структура, описывающая конфиг, содержащий параметры обфускации.
 Каждая bool-переменная отвечает за соответствующий флаг. Если переменная имеет значение true,
