@@ -1,3 +1,7 @@
 deleteComments=1
 renameFunctions=true
 renameVariables=1
+trashComments=1
+trashVariables=1
+trashFunctions=1
+trashLoops=1
