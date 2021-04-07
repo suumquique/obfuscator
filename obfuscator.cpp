@@ -14,6 +14,8 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 	if (config->renameVariables) codeText = renameVariables(codeText);
 	if (config->addTrashComments) codeText = addTrashComments(codeText);
 	if (config->addTrashVariables) codeText = addTrashVariables(codeText);
+	if (config->addTrashLoops) codeText = addTrashLoops(codeText);
+	if (config->addTrashFunctions) codeText = addTrashFunctions(codeText);
 
 	wofstream test("test.cpp");
 	test << codeText;
@@ -191,8 +193,8 @@ wstring addTrashVariables(wstring codeText) {
 	size_t currentInsertIndex; // Индекс для вставки текущей переменной в программу
 
 	for (size_t i = 0; i < numberOfVariables; i++) {
-		// Получаем случайную переменную
-		currentVariableString = getRandomVariableInitializationString();
+		// Получаем случайную переменную и добавляем в начале перенос строки
+		currentVariableString = LINE_BREAK + getRandomVariableInitializationString();
 
 		// Получаем корректный индекс для вставки переменной и добавляем его в текст программы
 		currentInsertIndex = findIndexToInsert(codeText, insertElement::VARIABLE);
@@ -203,6 +205,92 @@ wstring addTrashVariables(wstring codeText) {
 }
 
 wstring addTrashLoops(wstring codeText) {
+	// Рандомим, сколько бессмысленных циклов будем добавлять
+	size_t numberOfCycles = getLinesNumberInText(codeText) / INSERTION_FREQUENCY_BY_LINES_NUMBER * FREQUENCY_COEFFICIENT;
+	enum class loopTypes {WHILE, FOR, DO_WHILE}; // Возможные типы циклов
+	loopTypes currentLoopType; // Текущий тип цикла
+	wstring currentCycleVariableInitialization; // Строка, содержащая инициализацию итерационной переменной цикла
+	wstring currentCycleVariableName; // Имя текущей итерационной переменной в цикле
+	wstring cycleStartPart; // начало цикла (то, что до тела цикла)
+	wstring currentCycleBody = L""; // Тело (средняя часть) текущего цикла, по умолчанию пустая
+	wstring cycleEndPart; // Завершающая часть цикла (то, что после тела цикла)
+	wstring currentLoopString; // Общая строка всего цикла
+	wstring currentRandomLoopLimit; // Текущая граница итерации в создаваемом цикле
+	wstring currentLoopStep; // Шаг увеличения в текущем цикле
+	wstring comparisonOperator = L" < "; // Оператор сравнения (меньше) для циклов
+	wstring positiveAssignmentOperator = L" += "; // Оператор присваивания и сложения одновременно для циклов
+	wstring endCycleBodySymbol = L"}"; // Закрывающая скобка тела цикла
+	wstring variableInsideCycleInitialization; // рандомная переменная, инициализацию которой добавим внутри цикла
+	wstring variableInsideCycleName; // Имя переменной внутри цикла
+	size_t currentInsertIndex; // Индекс для вставки текущего цикла в программу
+
+
+	for (size_t i = 0; i < numberOfCycles; i++) {
+		// Получаем строку с инициализацией случайной переменной числовым значением, причем переменная точно не является указателем
+		currentCycleVariableInitialization = getRandomVariableInitializationString(TRUE, FALSE);
+		// Получаем имя новосозднанной переменной в строковом виде
+		currentCycleVariableName = getVariableNameFromInitializationString(currentCycleVariableInitialization);
+		// Текущий лимит цикла, до куда будет идти итерация
+		currentRandomLoopLimit = to_wstring(rand() % CHAR_MAX);
+		// Текущий шаг цикла (от 2 до 10, чтобы цикл был не бесконечным)
+		currentLoopStep = to_wstring((rand() % 9) + 2);
+		// Создаем переменную для заполнения цикла мусором
+		variableInsideCycleInitialization = getRandomVariableInitializationString(TRUE, FALSE);
+		variableInsideCycleName = getVariableNameFromInitializationString(variableInsideCycleInitialization);
+
+		// Рандомим тип цикла - for, while или do...while
+		currentLoopType = static_cast<loopTypes>(rand() % 3);
+		switch (currentLoopType) {
+		case loopTypes::FOR:
+
+			// Создаем начало цикла for, допустим "for(size_t i = 0; i < 15; i+=2){"
+			cycleStartPart = wstring(L"for (") + currentCycleVariableInitialization + currentCycleVariableName +
+				comparisonOperator + currentRandomLoopLimit + wstring(L"; ") + currentCycleVariableName + positiveAssignmentOperator +
+				currentLoopStep + wstring(L") {") + LINE_BREAK;
+			// Добавляем в конец цикла закрывающую скобку и перенос строки
+			cycleEndPart = endCycleBodySymbol + LINE_BREAK;
+			break;
+		case loopTypes::WHILE:
+
+			/* Создаем начало цикла while. Сначала, до цикла, требуется инициализировать итерационную переменную, потом открыть
+			* while(), и внутри скобок прописать условие, а затем открыть блок тела цикла */
+			cycleStartPart = currentCycleVariableInitialization + LINE_BREAK + wstring(L"while(") + currentCycleVariableName +
+				comparisonOperator + currentRandomLoopLimit + wstring(L") {") + LINE_BREAK + currentCycleVariableName +
+				positiveAssignmentOperator + currentLoopStep + wstring(L";") + LINE_BREAK;
+			// Добавляем в конец цикла закрывающую скобку и перенос строки
+			cycleEndPart = endCycleBodySymbol + LINE_BREAK;
+			break;
+		case loopTypes::DO_WHILE:
+
+			/* В данном случае в начале требуется до цикла инициализировать итерационную переменную, а затем просто написать do{
+			* и в теле цикла прибавить к текущему значению шаг цикла */
+			cycleStartPart = currentCycleVariableInitialization + LINE_BREAK + wstring(L"do {") + LINE_BREAK +
+				currentCycleVariableName + positiveAssignmentOperator + currentLoopStep + wstring(L";") + LINE_BREAK;
+			// Здесь все сложнее в конце: после закрытия тела цикла требуется прописать while() с условием в скобках
+			cycleEndPart = endCycleBodySymbol + wstring(L" while(") + currentCycleVariableName +
+				comparisonOperator + currentRandomLoopLimit + wstring(L");") + LINE_BREAK;
+			break;
+		}
+
+		// Случайным образом определяем, будем ли внутрь цикла (в тело цикла) добавлять мусорные переменные
+		if (rand() % 2 == 0) {
+			// Добавляем инициализацию мусорной переменной
+			currentCycleBody += variableInsideCycleInitialization + LINE_BREAK;
+			// Добавляем действие с ней и с переменной внутри цикла
+			currentCycleBody += variableInsideCycleName + (rand() % 2 ? wstring(L" = ") : positiveAssignmentOperator)
+				+ currentCycleVariableName + wstring(L";") +LINE_BREAK;
+		}
+
+		// Собираем полную строку цикла
+		currentLoopString = LINE_BREAK + cycleStartPart + currentCycleBody + cycleEndPart;
+		// Очищаем текущее тело цикла, чтобы в следующий раз оно не добавилось к имеющемуся 
+		currentCycleBody = L"";
+
+		// Получаем корректный индекс для вставки цикла и добавляем его в текст программы
+		currentInsertIndex = findIndexToInsert(codeText, insertElement::LOOP);
+		codeText = codeText.insert(currentInsertIndex, currentLoopString);
+	}
+
 	return codeText;
 }
 

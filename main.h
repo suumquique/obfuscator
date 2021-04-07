@@ -109,6 +109,8 @@ alwaysSetVariableValue - всегда ли устанавливать переменной значение, по умолчан
 переменна€ может быть инициалазирована без установки значени€, например int x;
 createPointers - создавать ли не только переменные базовых типов, а также указатели на базовые типы. ѕо умолчанию TRUE.*/
 wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue = FALSE, BOOL createPointers = TRUE);
+// ѕолучаем им€ переменной из строки ее инициализации
+wstring getVariableNameFromInitializationString(wstring variableInitializationString);
 
 /* Ќаходит место в коде, куда можно вставить цикл, комментарий или переменную, не изменив функциональность программы.
 ¬торой аргумент - тип вставл€емого значени€, поскольку места дл€ вставки дл€ функций, циклов и переменных разные - 

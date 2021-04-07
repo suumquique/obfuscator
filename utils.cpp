@@ -73,7 +73,7 @@ wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue, BOOL 
 	if (isVariablePointer) variableType += POINTER_SYMBOL;
 
 	// Составляем строку, но пока не полную: не присваиваем переменной значение
-	variableString = LINE_BREAK + variableType + L' ' + variableName;
+	variableString = variableType + L' ' + variableName;
 	// В 2/3 случаев присвоим переменной какое-нибудь значение
 	if (hasVariableValue) {
 		/* Получаем случайное значение переменной, если она не является указателем, если она указатель, единственным 
@@ -87,6 +87,16 @@ wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue, BOOL 
 	variableString += L';';
 
 	return variableString;
+}
+
+wstring getVariableNameFromInitializationString(wstring variableInitializationString) {
+	wregex variableNameRegex(LR"(\w+[*&]* (\w+)[^A-Za-z]+$)"); // Регулярное выражение для поиска имени переменной
+	wsmatch variableNameMatch; // Найденное совпадение, являющееся именем переменной
+
+	// Ищем совпадение по регулярному выражению
+	regex_search(variableInitializationString, variableNameMatch, variableNameRegex);
+
+	return variableNameMatch[1].str();
 }
 
 // Ищем среди массива интервал тот, у которого минимальное значение начальной позиции
@@ -160,9 +170,9 @@ size_t findIndexToInsert(wstring codeText, insertElement insertElementType) {
 	vector<size_t> availableIndexes; // Массив индексов, по которым доступна вставка
 	size_t openParenthesesNumber = 0; // Количество открытых фигурных скобок
 
-	/*Поскольку мы ищем место для вставки либо функции, либо переменной/цикла/комментария, то нам соответственно требуется знать
-	тип вставки, поскольку функцию можно вставлять только в глобальную область видимости, тогда как все остальное можно вставлять
-	после завершения любой операции, то есть после символа ";". */
+	/*Поскольку мы ищем место для вставки либо функции, либо цикла, либо переменной/комментария, то нам соответственно требуется знать
+	тип вставки, поскольку функции можно вставлять только в глобальную область видимости, циклы - только в локальную область видимости,
+	то есть внутри функций, тогда как все остальное можно вставлять после завершения любой операции, то есть после символа ";". */
 	if (insertElementType == insertElement::FUNCTION) {
 		/*Чтобы искать место для вставки только в глобальной области видимости (вне функций), то будем идти по тексту программы и 
 		считать фигурные скобки - "{" и "}". Глобальная область - когда количество открывающих совпадает с количеством закрывающих,
@@ -179,6 +189,26 @@ size_t findIndexToInsert(wstring codeText, insertElement insertElementType) {
 			количество открывающих и закрывающих скобок совпадает, и данный символ не расположен в запрещенном интервале,
 			добавляем его в доступные индексы для вставки функции*/
 			if ((codeText[i] == endBlockSymbol || codeText[i] == endFunctionSymbol) && !isInProhibitedInterval(codeText, i) && openParenthesesNumber == 0) {
+				availableIndexes.push_back(i + 1);
+			}
+		}
+	}
+	else if (insertElementType == insertElement::LOOP) {
+		/*Чтобы искать место для вставки только в локальной области видимости (внутри функций), то будем идти по тексту программы и
+		считать фигурные скобки - "{" и "}". Локальная область - когда количество открывающих не совпадает с количеством закрывающих,
+		то есть, текущий блок открыт.*/
+
+		for (size_t i = 0; i < codeText.length(); i++) {
+
+			/* Будем считать, что переданная нам программа валидна, и не бывает такого, что есть закрывающая фигурная скобка
+			* в тексте программы, если ранее не было открывающей */
+			if (codeText[i] == startFunctionSymbol && !isInProhibitedInterval(codeText, i)) openParenthesesNumber++;
+			if (codeText[i] == endFunctionSymbol && !isInProhibitedInterval(codeText, i)) openParenthesesNumber--;
+
+			/*Если текущий символ - конец блока или конец функции, и при этом блок расположен в глобальном простанстве, то есть
+			количество открывающих и закрывающих скобок совпадает, и данный символ не расположен в запрещенном интервале,
+			добавляем его в доступные индексы для вставки функции*/
+			if (codeText[i] == endBlockSymbol && !isInProhibitedInterval(codeText, i) && openParenthesesNumber != 0) {
 				availableIndexes.push_back(i + 1);
 			}
 		}
