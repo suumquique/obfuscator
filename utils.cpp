@@ -55,13 +55,9 @@ size_t getLinesNumberInText(wstring codeText) {
 }
 
 BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
-	wstring startMultistringCommentSymbols = L"/*"; // Символы, с которых всегда начинается мультистрочный комментарий
-	wstring endMultistringCommentSymbols = L"*/"; // Символы, которыми заканчивается многострочный комментарий
-	wstring startStandardCommentSymbols = L"//"; // Символы, с которых всегда начинается стандартный комментарий
-	wchar_t standardCommentEndSymbol = '\n'; // Завершающий символ стандартного комментария
 	wchar_t stringSymbol = L'"'; // И начинающий, и завершающий символ строки
-	size_t startPosMultistringComment = codeText.find(startMultistringCommentSymbols); // Позиция начала многострочного комментария
-	size_t startPosStandardComment = codeText.find(startStandardCommentSymbols); // Позиция начала обычного комментария
+	size_t startPosMultistringComment = codeText.find(START_MULTISTRING_COMMENT_SYMBOLS); // Позиция начала многострочного комментария
+	size_t startPosStandardComment = codeText.find(START_STANDARD_COMMENT_SYMBOLS); // Позиция начала обычного комментария
 	size_t startPosString = codeText.find(stringSymbol);
 	size_t endPosProhibitedInterval = 0; // Конечная позиция найденного запрещенного интервала (строки или комментария)
 
@@ -85,7 +81,7 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 		// Если многострочный комментарий начинается раньше стандартного, смотрим его начало и конец
 		else if (startPosMultistringComment < startPosStandardComment && startPosMultistringComment != wstring::npos) {
 			// Ищем конец многострочного комментария
-			endPosProhibitedInterval = codeText.find(endMultistringCommentSymbols, startPosMultistringComment) + endMultistringCommentSymbols.length();
+			endPosProhibitedInterval = codeText.find(END_MULTRISTRING_COMMENT_SYMBOLS, startPosMultistringComment) + END_MULTRISTRING_COMMENT_SYMBOLS.length();
 			// Если индекс для вставки находится между началом и концом мультистрочного комментария, то возвращаем TRUE
 			if (insertIndex >= startPosMultistringComment && insertIndex <= endPosProhibitedInterval) return TRUE;
 		}
@@ -93,19 +89,19 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 		// Если наоборот, вырезаем полностью стандартный
 		else if (startPosStandardComment < startPosMultistringComment && startPosStandardComment != wstring::npos) {
 			// Ищем конец стандартного комментария - он заканчивается при переносе строки
-			endPosProhibitedInterval= codeText.find(standardCommentEndSymbol, startPosStandardComment) + 1;
+			endPosProhibitedInterval= codeText.find(STANDARD_COMMENT_END_SYMBOL, startPosStandardComment) + 1;
 			// Однако, стандартные комментарии можно переносить на следующую строку символом обратного слеша\
 			Пока идут обратные слеши, ищем следующий символ переноса строки, так как коммент переносится дальше и дальше
 			while (codeText[endPosProhibitedInterval - 1] == '\\') {
-				endPosProhibitedInterval = codeText.find(standardCommentEndSymbol, endPosProhibitedInterval) + 1;
+				endPosProhibitedInterval = codeText.find(STANDARD_COMMENT_END_SYMBOL, endPosProhibitedInterval) + 1;
 			}
 			// Если индекс для вставки находится между началом и концом стандартного комментария, то возвращаем TRUE
 			if (insertIndex >= startPosStandardComment && insertIndex <= endPosProhibitedInterval) return TRUE;
 		}
 
 		// Обновляем индексы начала разных типов запрещенных интервалов
-		startPosMultistringComment = codeText.find(startMultistringCommentSymbols, endPosProhibitedInterval);
-		startPosStandardComment = codeText.find(startStandardCommentSymbols, endPosProhibitedInterval);
+		startPosMultistringComment = codeText.find(START_MULTISTRING_COMMENT_SYMBOLS, endPosProhibitedInterval);
+		startPosStandardComment = codeText.find(START_STANDARD_COMMENT_SYMBOLS, endPosProhibitedInterval);
 		startPosString = codeText.find(stringSymbol, endPosProhibitedInterval);
 	}
 

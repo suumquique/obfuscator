@@ -12,6 +12,7 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 	if (config->deleteComments) codeText = deleteComments(codeText);
 	if (config->renameFunctions) codeText = renameFunctions(codeText);
 	if (config->renameVariables) codeText = renameVariables(codeText);
+	if (config->addTrashComments) codeText = addTrashComments(codeText);
 
 	wofstream test("test.cpp");
 	test << codeText;
@@ -21,13 +22,8 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 
 // Функция, удаляющая комментарии из строки, которая представляет из себя код C, C++ или C#
 wstring deleteComments(wstring codeText) {
-
-	wstring startMultistringCommentSymbols = L"/*"; // Символы, с которых всегда начинается мультистрочный комментарий
-	wstring endMultistringCommentSymbols = L"*/"; // Символы, которыми заканчивается многострочный комментарий
-	wstring startStandardCommentSymbols = L"//"; // Символы, с которых всегда начинается стандартный комментарий
-	wchar_t standardCommentEndSymbol = '\n'; // Завершающий символ стандартного комментария
-	size_t startPosMultistringComment = codeText.find(startMultistringCommentSymbols); // Позиция начала многострочного комментария
-	size_t startPosStandardComment = codeText.find(startStandardCommentSymbols); // Позиция начала обычного комментария
+	size_t startPosMultistringComment = codeText.find(START_MULTISTRING_COMMENT_SYMBOLS); // Позиция начала многострочного комментария
+	size_t startPosStandardComment = codeText.find(START_STANDARD_COMMENT_SYMBOLS); // Позиция начала обычного комментария
 	size_t endPosMultistringComment; // Позиция конца многострочного комментация
 	size_t endPosStandardComment; // Позиция конца обычного комментария
 
@@ -36,7 +32,7 @@ wstring deleteComments(wstring codeText) {
 		// Если многострочный комментарий начинается раньше стандартного, вырезаем его полностью
 		if (startPosMultistringComment < startPosStandardComment && startPosMultistringComment != wstring::npos) {
 			// Ищем конец многострочного комментария
-			endPosMultistringComment = codeText.find(endMultistringCommentSymbols) + endMultistringCommentSymbols.length();
+			endPosMultistringComment = codeText.find(END_MULTRISTRING_COMMENT_SYMBOLS) + END_MULTRISTRING_COMMENT_SYMBOLS.length();
 
 			codeText.erase(startPosMultistringComment, endPosMultistringComment - startPosMultistringComment);
 		}
@@ -44,19 +40,19 @@ wstring deleteComments(wstring codeText) {
 		// Если наоборот, вырезаем полностью стандартный
 		else if (startPosStandardComment < startPosMultistringComment && startPosStandardComment != wstring::npos) {
 			// Ищем конец стандартного комментария - он заканчивается при переносе строки
-			endPosStandardComment = codeText.find(standardCommentEndSymbol, startPosStandardComment);
+			endPosStandardComment = codeText.find(STANDARD_COMMENT_END_SYMBOL, startPosStandardComment);
 			// Однако, стандартные комментарии можно переносить на следующую строку символом обратного слеша\
 			Пока идут обратные слеши, ищем следующий символ переноса строки, так как коммент переносится дальше и дальше
 			while (codeText[endPosStandardComment - 1] == '\\') {
-				endPosStandardComment = codeText.find(standardCommentEndSymbol, endPosStandardComment + 1);
+				endPosStandardComment = codeText.find(STANDARD_COMMENT_END_SYMBOL, endPosStandardComment + 1);
 			}
 
 			codeText.erase(startPosStandardComment, endPosStandardComment - startPosStandardComment + 1);
 		}
 
 		// Обновляем индексы начала разных типов комментариев
-		startPosMultistringComment = codeText.find(startMultistringCommentSymbols);
-		startPosStandardComment = codeText.find(startStandardCommentSymbols);
+		startPosMultistringComment = codeText.find(START_MULTISTRING_COMMENT_SYMBOLS);
+		startPosStandardComment = codeText.find(START_STANDARD_COMMENT_SYMBOLS);
 	}
 
 	return codeText;
@@ -153,5 +149,36 @@ wstring renameVariables(wstring codeText) {
 		textCopy = currentMatch.suffix();
 	}
 	
+	return codeText;
+}
+
+wstring addTrashComments(wstring codeText) {
+	// Считаем, сколько комментариев будем добавлять
+	size_t numberOfComments = getLinesNumberInText(codeText) / INSERTION_FREQUENCY_BY_LINES_NUMBER * FREQUENCY_COEFFICIENT;
+	wstring currentComment; // Текущий комментарий для добавления, который будем генерировать каждый раз
+	commentType currentCommentType; // Тип текущего комментария - многострочный или однострочный (стандартный)
+	size_t currentInsertIndex; // Индекс в тексте для добавления текущего комментария
+
+	for (size_t i = 0; i < numberOfComments; i++) {
+		// Получаем случайную строку из бессмысленных символов
+		currentComment = getRandomString(MAX_COMMENT_LENGTH);
+
+		// Добавляем в комментарий пробелы на случайные позиции
+		for (size_t k = 0; k < currentComment.length(); k++) {
+			if (WHITESPACE_FREQUENCY_IN_COMMENTS == 1) currentComment[k] = L' ';
+		}
+
+		// Случайным образом выбираем тип добавляемого комментария (стандартный или многострочный)
+		currentCommentType = rand() % 2 ? commentType::STANDARD : commentType::MULTISTRING;
+		if (currentCommentType == commentType::STANDARD) {
+			currentComment = START_STANDARD_COMMENT_SYMBOLS + currentComment + STANDARD_COMMENT_END_SYMBOL;
+		}
+		else currentComment = START_MULTISTRING_COMMENT_SYMBOLS + currentComment + END_MULTRISTRING_COMMENT_SYMBOLS;
+
+		// Получаем корректный индекс для вставки комментария и добавляем его в текст программы
+		size_t currentInsertIndex = findIndexToInsert(codeText, insertElement::COMMENT);
+		codeText = codeText.insert(currentInsertIndex, currentComment);
+	}
+
 	return codeText;
 }

@@ -5,6 +5,7 @@
 #include <bitset>
 
 using namespace std;
+string encryptString(string s);
 
 // Путь к файлу, где по умолчанию лежит пароль (локально, в той же папке)
 #define PATH_TO_FILE_WITH_PASSWORD "encryptedPassword.txt"
@@ -44,7 +45,9 @@ int main(void) {
 	SetConsoleOutputCP(RUS_ENCODING);
 
 	// Пароль, вводимый пользователем, зашифрованный пользовательский пароль и корректный пароль (зашифрованный), который берется из файла
-	string password, encryptedPassword, encryptedCorrectPassword;
+	string password;
+	string encryptedPassword;
+	string encryptedCorrectPassword ;
 	cout << "Введите пароль: ";
 	cin >> password;
 	encryptedPassword = encryptString(password);
