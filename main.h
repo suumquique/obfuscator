@@ -109,8 +109,11 @@ wstring getRandomString(size_t len);
 * На вход могут передаваться флаги в качестве параметров:
 alwaysSetVariableValue - всегда ли устанавливать переменной значение, по умолчанию FALSE, то есть
 переменная может быть инициалазирована без установки значения, например int x;
-createPointers - создавать ли не только переменные базовых типов, а также указатели на базовые типы. По умолчанию TRUE.*/
-wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue = FALSE, BOOL createPointers = TRUE);
+createPointers - создавать ли не только переменные базовых типов, а также указатели на базовые типы. По умолчанию TRUE.
+allowSetVariableValue - разрешить ли устанавливать переменной значение, или все переменные отдавать неинициализированными. По умолчанию TRUE.
+endBlockSymbol - какой символ добавлять в качестве конца блока, после инициализации переменной. По умолчанию ";"
+*/
+wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue = FALSE, BOOL createPointers = TRUE, BOOL allowSetVariableValue = TRUE, wchar_t endBlockSymbol = L';');
 // Получаем имя переменной из строки ее инициализации
 wstring getVariableNameFromInitializationString(wstring variableInitializationString);
 

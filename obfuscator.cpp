@@ -295,5 +295,54 @@ wstring addTrashLoops(wstring codeText) {
 }
 
 wstring addTrashFunctions(wstring codeText) {
+	// Рандомим, сколько бессмысленных функций будем добавлять
+	size_t numberOfFunctions = getLinesNumberInText(codeText) / INSERTION_FREQUENCY_BY_LINES_NUMBER * FREQUENCY_COEFFICIENT;
+	wstring currentFunctionName; // Имя текущей функции
+	wstring currentFunctionType; // Тип текущей функции
+	wstring currentFunctionPrototype; // Прототип функции
+	wstring currentFunctionBody; // "Тело" текущей функции
+	wstring currentFunctionString; // Общее строковое представление текущей созданной функции
+	wstring currentReturningVariableName; // Имя переменной, которая будет возвращена из текущей функции
+	wstring currentReturningVariableInitialization; // Инициализация переменной, которая будет возвращена из текущей функции
+	BOOL isCurrentFunctionTypePointer; // Будет ли тип функции указателем
+	size_t currentFunctionArgumentNumber; // Количество аргументов у текущей функции
+	size_t currentInsertIndex; // Индекс для вставки текущей функции в программу
+
+	for (size_t i = 0; i < numberOfFunctions; i++) {
+		currentFunctionName = getRandomString(RANDOM_NAME_LENGTH);
+		isCurrentFunctionTypePointer = rand() % 2;
+		// Выбираем случайный тип для текущей функциии в половину случаем берем не просто тип, а указатель на него
+		currentFunctionType = basicTypes[rand() % basicTypes.size()] + (isCurrentFunctionTypePointer ? POINTER_SYMBOL : L"");
+		currentFunctionPrototype = currentFunctionType + wstring(L" ") + currentFunctionName + wstring(L"(");
+
+		// От нуля до четырех аргументов у функции
+		currentFunctionArgumentNumber = rand() % 4;
+		for (size_t k = 0; k < currentFunctionArgumentNumber; k++) {
+			/* Получаем текущий аргумент в виде инициализации переменной без установки значения, с символом в "," конце,
+			и добавляем его в прототип. Аргумент может быть указателем */
+			currentFunctionPrototype += getRandomVariableInitializationString(FALSE, TRUE, FALSE, L',');
+		}
+		// Если у функции есть хоть один аргумент, удаляем последнюю добавленную запятую
+		if (currentFunctionArgumentNumber) currentFunctionPrototype.erase(currentFunctionPrototype.length() - 1);
+		// Добавляем закрывающую скобку к прототипу
+		currentFunctionPrototype += L')';
+
+		// Рандомим имя переменной, которую будем возвращать из функции
+		currentReturningVariableName = getRandomString(RANDOM_NAME_LENGTH);
+		// Инициализируем эту переменную, она должна иметь, совпадающий с типом возвращаемого функцией значения
+		currentReturningVariableInitialization = currentFunctionType + wstring(L" ") + currentReturningVariableName +
+			wstring(L" = ") + (isCurrentFunctionTypePointer ? wstring(L"0") : to_wstring(rand() % CHAR_MAX)) + wstring(L";");
+		// Генерируем "тело" цикла, то, что внутри фигурных скобок
+		currentFunctionBody = wstring(L"{") + LINE_BREAK + currentReturningVariableInitialization + LINE_BREAK +
+			wstring(L"return ") + currentReturningVariableName + wstring(L";") + LINE_BREAK + wstring(L"}") + LINE_BREAK;
+
+		// Складываем из прототипа (инициализации) и тела функции саму функцию
+		currentFunctionString = LINE_BREAK + currentFunctionPrototype + currentFunctionBody;
+	
+		// Получаем корректный индекс для вставки функции и добавляем его в текст программы
+		currentInsertIndex = findIndexToInsert(codeText, insertElement::FUNCTION);
+		codeText = codeText.insert(currentInsertIndex, currentFunctionString);
+	}
+
 	return codeText;
 }

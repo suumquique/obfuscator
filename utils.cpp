@@ -57,13 +57,13 @@ size_t getLinesNumberInText(wstring codeText) {
 	return i;
 }
 
-wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue, BOOL createPointers) {
+wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue, BOOL createPointers, BOOL allowSetVariableValue, wchar_t endBlockSymbol) {
 	wstring variableString; // ќбща€ строка дл€ вставки случайной переменной, включающа€ в себ€ тип, им€, пробельные символы и т.д.
 	wstring variableType; // “ип текущей переменной
 	wstring variableName; // »м€ текущей переменной
 	char variableValue; // «начение текущей переменной (так как все базовые переменные можно представить в формате числа)
 	BOOL isVariablePointer = createPointers && rand() % 3 == 0; // —лучайным образом решаем, будет ли указателем
-	BOOL hasVariableValue = alwaysSetVariableValue || rand() % 3 != 0; // —лучайным образом решаем, будет ли переменна€ иметь значение
+	BOOL hasVariableValue = (alwaysSetVariableValue || rand() % 3 != 0) && allowSetVariableValue; // —лучайным образом решаем, будет ли переменна€ иметь значение
 
 	// √енерируем случайное им€ переменной случайной длины
 	variableName = getRandomString(RANDOM_NAME_LENGTH);
@@ -84,7 +84,7 @@ wstring getRandomVariableInitializationString(BOOL alwaysSetVariableValue, BOOL 
 	}
 
 	// ƒобавл€ем инструкцию конца блока инициализации
-	variableString += L';';
+	variableString += endBlockSymbol;
 
 	return variableString;
 }
@@ -124,7 +124,7 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 	// «апрещаем вставку в константные строки в тексте программы
 	ProhibitedInterval inlineString{ 0, wstring(L"\""), wstring(L"\""), L'\\' };
 	// «апрещаем вставку в места, окруженные круглыми скобками, например, в заголовки циклов или в вызовы функций
-	ProhibitedInterval bracketGroup{ 0, wstring(L"("), wstring(L")"), 0 };
+	ProhibitedInterval bracketGroup{ 0, wstring(L"("), wstring(L")"), L'('};
 
 	vector<ProhibitedInterval> prohibitedIntervals { standardComment, multistringComment, inlineString, compilerDirectives, bracketGroup };
 
@@ -154,7 +154,7 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 		}
 
 		// ≈сли текущий индекс находитс€ внутри запрещенного интервала - возвращаем TRUE
-		if (insertIndex >= currentIntervalStartPos && insertIndex <= currentIntervalEndPos) return TRUE;
+		if (insertIndex > currentIntervalStartPos && insertIndex < currentIntervalEndPos) return TRUE;
 		// —ледующий поиск будем начинать с конца текущего интервала, к которому добавлена длина символов, завершающих интервал
 		currentSearchStartPos = currentIntervalEndPos + currentInterval.end.length();
 	}
