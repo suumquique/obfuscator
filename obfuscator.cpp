@@ -107,7 +107,7 @@ wstring renameFunctions(wstring codeText) {
 }
 
 BOOL isValidVariableType(wstring variableType) {
-	if (variableType == L"namespace" || variableType == L"return") return FALSE;
+	if (variableType == L"namespace" || variableType == L"return" || variableType == L"else") return FALSE;
 	return TRUE;
 }
 
