@@ -123,10 +123,11 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 	ProhibitedInterval compilerDirectives{ 0, wstring(L"#"), LINE_BREAK, L'\\' };
 	// «апрещаем вставку в константные строки в тексте программы
 	ProhibitedInterval inlineString{ 0, wstring(L"\""), wstring(L"\""), L'\\' };
-	// «апрещаем вставку в места, окруженные круглыми скобками, например, в заголовки циклов или в вызовы функций
-	ProhibitedInterval bracketGroup{ 0, wstring(L"("), wstring(L")"), L'('};
+	// «апрещаем вставку в места, окруженные круглыми скобками, например, в заголовки циклов
+	ProhibitedInterval forLoop{ 0, wstring(L"for"), wstring(L"{"), 0};
+	ProhibitedInterval whileLoop{ 0, wstring(L"while"), wstring(L"{"), 0 };
 
-	vector<ProhibitedInterval> prohibitedIntervals { standardComment, multistringComment, inlineString, compilerDirectives, bracketGroup };
+	vector<ProhibitedInterval> prohibitedIntervals { standardComment, multistringComment, inlineString, compilerDirectives, forLoop, whileLoop };
 
 	size_t currentSearchStartPos = 0; // “екуща€ позици€, от которой будем осуществл€ть поиск в тексте программы
 	size_t currentIntervalStartPos; // ѕозици€ начала текущего интервала
@@ -142,11 +143,13 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 		// –аботаем с тем интервалом, который начинаетс€ раньше
 		currentInterval = getIntervalWithMinStartPos(prohibitedIntervals);
 		currentIntervalStartPos = currentInterval.startPos;
+		
 		/* ≈сли самый стартова€ позици€ в интервале, который раньше всех, равна концу текста, это значит, что искомый индекс точно 
 		* не находитс€ в запрещенном интервале */
 		if (currentInterval.startPos == wstring::npos) return FALSE;
 		// »щем конец текущего запрещенного интервала
 		currentIntervalEndPos = codeText.find(currentInterval.end, currentIntervalStartPos);
+
 		/*—тоит помнить, что если перед концом текущего интервала стоит "заглушка" - обратна€ коса€ черта, то это значит, что
 		* интервал продолжаетс€, и надо искать конец дальше */
 		while (codeText[currentIntervalEndPos - 1] == currentInterval.intervalBreak && currentInterval.intervalBreak) {
