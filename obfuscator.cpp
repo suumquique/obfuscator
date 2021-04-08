@@ -346,5 +346,33 @@ wstring addTrashFunctions(wstring codeText) {
 }
 
 wstring deleteSpaces(wstring codeText) {
+	// Если спереди или сзади пробела находится один из данных символов, это значит, что пробел можно удалять
+	wstring allowedSymbols = L"=; \n\t\f{}+-,/ <>[]()!";
+	// Если один из нижеуказанных символов - удалять пробел ни в коем случае нельзя
+	wstring prohibitedSymbols = L"#";
+	/* Показывает, имеет ли смысл удалять пробельный символ из данной точки, пользуясь списком разрешенных символов,
+	* представленным выше. Например, если пробел между двумя словами, удалять его точно не нужно */
+	BOOL mayDeleteSpaceSymbol; 
+	size_t codeTextLen = codeText.length();
+	
+
+	for (size_t i = 0; i < codeTextLen - 1; i++) {
+		// Если символ не пробельный - сразу же проопускам=ем
+		if (!iswspace(codeText[i])) continue;
+
+		// Смотрим, есть ли предыдущий или следующий элемент в разрешенных символах и нет ли его в запрещенных
+		mayDeleteSpaceSymbol = (allowedSymbols.find(codeText[i - 1]) != wstring::npos || allowedSymbols.find(codeText[i + 1]) != wstring::npos) &&
+			prohibitedSymbols.find(codeText[i - 1]) == wstring::npos && prohibitedSymbols.find(codeText[i + 1]) == wstring::npos;
+		if (!mayDeleteSpaceSymbol || isInProhibitedInterval(codeText,i)) continue;
+
+		// Удаляем текущий пробел
+		codeText = codeText.erase(i, 1);
+		/* Отступаем на единицу назад, поскольку если мы этого не сделаем, то перескочим следующий символ, так как
+		* текущий удален и по его индексу уже находится следующий */
+		i--;
+		// Обновляем длину текста
+		codeTextLen = codeText.length();
+	}
+
 	return codeText;
 }
