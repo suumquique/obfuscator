@@ -87,6 +87,7 @@ typedef struct _config {
 	BOOL addTrashComments;
 } Config;
 
+// Некоторые базовые типы языка C (в строковом представлении) для создания случайных переменных или функций
 extern vector<wstring> basicTypes;
 
 // Возможные элементы для вставки в текст программы
