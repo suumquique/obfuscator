@@ -53,7 +53,7 @@ int main(void) {
 	string password;
 	string encryptedPassword;
 	string encryptedCorrectPassword ;
-	cout << "Введите пароль: ";
+	cout << "Enter the password: ";
 	cin >> password;
 	encryptedPassword = encryptString(password);
 	
@@ -62,10 +62,11 @@ int main(void) {
 	getline(fileWithPassword, encryptedCorrectPassword);
 
 	if (encryptedPassword.compare(encryptedCorrectPassword) != 0) {
-		cout << "Введен неверный пароль!" << endl;
+		cout << "Password is invalid!" << endl;
+		system("pause");
 		exit(1);
 	}
 
-	cout << "Доступ к программе получен." << endl;
+	cout << "You get full access to the program." << endl;
 	system("pause");
 }
