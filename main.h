@@ -85,6 +85,8 @@ typedef struct _config {
 	BOOL addTrashComments;
 } Config;
 
+extern vector<wstring> basicTypes;
+
 // Возможные элементы для вставки в текст программы
 enum class insertElement {COMMENT, VARIABLE, FUNCTION, LOOP};
 
