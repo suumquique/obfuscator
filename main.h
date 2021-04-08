@@ -59,6 +59,8 @@ wifstream openAndCheckFile(wstring inputPrompt);
 #define CONFIG_ADD_TRASH_LOOPS L"trashLoops"
 // —трока из конфига, отвечающа€ за флаг добавлени€ бессмысленных комментариев в код программы
 #define CONFIG_ADD_TRASH_COMMENTS L"trashComments"
+// —трока конфига, отвечающа€ за удаление незначащих пробельных символов из код
+#define CONFIG_DELETE_SPACES L"deleteSpaces"
 
 /*—труктура, описывающа€ запрещенный интервал. Ёто интервал (с индекса по индекс в тексте программы), в который нельз€ добавл€ть
 * циклы, инициализацию переменных, комментарии и так далее, потому что это либо не будет иметь смысла, либо нарушит работу программы.
@@ -148,3 +150,6 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex);
 
 // ѕолучает количество строк (то есть, переносов строк) в файле с кодом, который представлен в виде строки codeText
 size_t getLinesNumberInText(wstring codeText);
+
+// ‘ункци€, удал€юща€ из строки с кодом все незначащие пробельные символы (те, удаление которых повредит работоспособности)
+wstring deleteSpaces(wstring codeText);

@@ -56,6 +56,9 @@ Config* parseConfigFile(wifstream& configFile) {
 		if (currentFlag == CONFIG_ADD_TRASH_COMMENTS) {
 			config->addTrashComments = currentFlagValue;
 		}
+		if (currentFlag == CONFIG_DELETE_SPACES) {
+			config->deleteSpaces = currentFlagValue;
+		}
 	}
 
 	return config;

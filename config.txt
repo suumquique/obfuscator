@@ -5,3 +5,4 @@ trashComments=1
 trashVariables=1
 trashFunctions=1
 trashLoops=1
+deleteSpaces=true

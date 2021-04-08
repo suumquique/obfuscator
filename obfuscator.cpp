@@ -16,6 +16,7 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 	if (config->addTrashVariables) codeText = addTrashVariables(codeText);
 	if (config->addTrashLoops) codeText = addTrashLoops(codeText);
 	if (config->addTrashFunctions) codeText = addTrashFunctions(codeText);
+	if (config->deleteSpaces) codeText = deleteSpaces(codeText);
 
 	wofstream test("test.cpp");
 	test << codeText;
@@ -344,5 +345,9 @@ wstring addTrashFunctions(wstring codeText) {
 		codeText = codeText.insert(currentInsertIndex, currentFunctionString);
 	}
 
+	return codeText;
+}
+
+wstring deleteSpaces(wstring codeText) {
 	return codeText;
 }
