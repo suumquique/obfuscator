@@ -53,7 +53,7 @@ int main(void) {
 	string password;
 	string encryptedPassword;
 	string encryptedCorrectPassword ;
-	cout << "Enter the password: ";
+	cout << "Enter program pass to get access: ";
 	cin >> password;
 	encryptedPassword = encryptString(password);
 	

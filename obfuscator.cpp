@@ -353,17 +353,24 @@ wstring deleteSpaces(wstring codeText) {
 	/* ѕоказывает, имеет ли смысл удал€ть пробельный символ из данной точки, пользу€сь списком разрешенных символов,
 	* представленным выше. Ќапример, если пробел между двум€ словами, удал€ть его точно не нужно */
 	BOOL mayDeleteSpaceSymbol; 
+	// ѕоказывает, попадает ли символ и его права€ или лева€ граница в запрещенный интервал
+	BOOL fallsIntoProhibitedInterval;
 	size_t codeTextLen = codeText.length();
 	
 
-	for (size_t i = 0; i < codeTextLen - 1; i++) {
+	for (size_t i = 0; i < codeTextLen - 2; i++) {
 		// ≈сли символ не пробельный - сразу же проопускам=ем
 		if (!iswspace(codeText[i])) continue;
 
 		// —мотрим, есть ли предыдущий или следующий элемент в разрешенных символах и нет ли его в запрещенных
 		mayDeleteSpaceSymbol = (allowedSymbols.find(codeText[i - 1]) != wstring::npos || allowedSymbols.find(codeText[i + 1]) != wstring::npos) &&
 			prohibitedSymbols.find(codeText[i - 1]) == wstring::npos && prohibitedSymbols.find(codeText[i + 1]) == wstring::npos;
-		if (!mayDeleteSpaceSymbol || isInProhibitedInterval(codeText,i)) continue;
+		if (!mayDeleteSpaceSymbol) continue;
+
+		// ѕровер€ем, не находитс€ ли символ или его границы (соседи, +-1 по индексу) в запрещенном интервале
+		fallsIntoProhibitedInterval = isInProhibitedInterval(codeText, i) || isInProhibitedInterval(codeText, i + 1)
+			|| isInProhibitedInterval(codeText, i - 1);
+		if (fallsIntoProhibitedInterval) continue;
 
 		// ”дал€ем текущий пробел
 		codeText = codeText.erase(i, 1);
