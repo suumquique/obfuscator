@@ -126,8 +126,9 @@ BOOL isInProhibitedInterval(wstring codeText, size_t insertIndex) {
 	// «апрещаем вставку в места, окруженные круглыми скобками, например, в заголовки циклов
 	ProhibitedInterval forLoop{ 0, wstring(L"for"), wstring(L"{"), 0};
 	ProhibitedInterval whileLoop{ 0, wstring(L"while"), wstring(L"{"), 0 };
+	ProhibitedInterval doWhileLoop{ 0, wstring(L"} while"), wstring(L");"), 0 };
 
-	vector<ProhibitedInterval> prohibitedIntervals { standardComment, multistringComment, inlineString, compilerDirectives, forLoop, whileLoop };
+	vector<ProhibitedInterval> prohibitedIntervals { standardComment, multistringComment, inlineString, compilerDirectives, forLoop, whileLoop, doWhileLoop };
 
 	size_t currentSearchStartPos = 0; // “екуща€ позици€, от которой будем осуществл€ть поиск в тексте программы
 	size_t currentIntervalStartPos; // ѕозици€ начала текущего интервала
