@@ -16,7 +16,7 @@ BOOL getCurrentFlagValue(wstring fullString) {
 	return FALSE;
 }
 
-Config* parseConfigFile(wifstream& configFile) {
+Config* parseConfigFile(wfstream& configFile) {
 	// Создаем экземпляр конфига и заполяем все поля нулями (то есть false)
 	Config* config = new Config;
 	memset(config, 0x00, sizeof(Config));

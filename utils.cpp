@@ -3,13 +3,13 @@
 // Некоторые базовые типы языка C (в строковом представлении) для создания случайных переменных или функций
 vector<wstring> basicTypes{ L"int", L"char", L"long", L"unsigned", L"long long", L"short", L"unsigned short", L"unsigned long", L"unsigned char" };
 
-wifstream openAndCheckFile(wstring inputPrompt) {
+wfstream openAndCheckFile(wstring inputPrompt, ios_base::iostate openType) {
 	wstring filePath;
 
 	// Запрашиваем у пользователя ввод пути к файлу
 	wcout << inputPrompt;
 	wcin >> filePath;
-	wifstream file(filePath);
+	wfstream file(filePath, openType);
 	if (!file.is_open()) {
 		wcout << L"Не удалось открыть файл по указанному пути. Файла не существует, либо доступ к нему запрещен." << endl;
 		exit(ERROR_FILE_INVALID);

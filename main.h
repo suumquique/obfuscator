@@ -15,8 +15,8 @@ using namespace std;
 // Изменить кодировку консоли и кодировку вывода для работы с русскими символами
 void normalizeEncoding();
 
-// Открывает файл и, если он открылся корректно, возвращает поток для его чтения
-wifstream openAndCheckFile(wstring inputPrompt);
+// Открывает файл и, если он открылся корректно, возвращает поток для его чтения / записи
+wfstream openAndCheckFile(wstring inputPrompt, ios_base::iostate openType = ios_base::in);
 
 /*Количество вставок различных "мусорных" элементов на число строк в программе. По умолчанию - 1 вставка на 50 строк,
 однако обычно количество рандомится делением этой константы на FREQUENCY_COEFFICIENT (то есть, от 1 до 10 вставок на 50 строк)*/
@@ -98,11 +98,11 @@ enum class commentType {STANDARD, MULTISTRING};
 /*Фунция парсит переданный ей конфигурационный файл построчно, разбивая каждую строку на имя флага и
 его значение, принимая его за true или false. Возвращает вышеописанную структуру Config, в которой установлены все имеющиеся
 в конфигурационном файле флаги (однако, стоит уточнить: те флаги, значение которых не указано в файле, по умолчанию имеют значение false)*/
-Config* parseConfigFile(wifstream& configFile);
+Config* parseConfigFile(wfstream& configFile);
 
 /*Функция считывает текст из переданного ей файла с кодом и обфусцирует его, возвращая строку, содержащую весь обфусцированный код.
 Параметры обфускации должны быть заданы в переданном конфиге.*/
-wstring obfuscate(wifstream& codeFile, Config* config);
+wstring obfuscate(wfstream& codeFile, Config* config);
 
 // Генерирует случайную строку заданной длины
 wstring getRandomString(size_t len);

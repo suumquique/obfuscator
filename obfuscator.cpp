@@ -1,6 +1,6 @@
 #include "main.h"
 
-wstring obfuscate(wifstream& codeFile, Config* config) {
+wstring obfuscate(wfstream& codeFile, Config* config) {
 	// —читываем текст из файла в строку
 	wstringstream wss;
 	wss << codeFile.rdbuf();
@@ -17,9 +17,6 @@ wstring obfuscate(wifstream& codeFile, Config* config) {
 	if (config->addTrashLoops) codeText = addTrashLoops(codeText);
 	if (config->addTrashFunctions) codeText = addTrashFunctions(codeText);
 	if (config->deleteSpaces) codeText = deleteSpaces(codeText);
-
-	wofstream test("test.cpp");
-	test << codeText;
 
 	return codeText;
 }
