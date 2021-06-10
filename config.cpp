@@ -1,4 +1,4 @@
-#include "main.h"
+#include "main.hpp"
 
 
 BOOL getCurrentFlagValue(wstring fullString) {

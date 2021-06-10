@@ -1,4 +1,4 @@
-#include "main.h"
+#include "main.hpp"
 
 wstring obfuscate(wfstream& codeFile, Config* config) {
 	// —читываем текст из файла в строку

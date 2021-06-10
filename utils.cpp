@@ -1,4 +1,4 @@
-#include "main.h"
+#include "main.hpp"
 
 // Некоторые базовые типы языка C (в строковом представлении) для создания случайных переменных или функций
 vector<wstring> basicTypes{ L"int", L"char", L"long", L"unsigned", L"long long", L"short", L"unsigned short", L"unsigned long", L"unsigned char" };

@@ -29,7 +29,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="main.h">
+    <ClInclude Include="main.hpp">
       <Filter>Файлы ресурсов</Filter>
     </ClInclude>
   </ItemGroup>
