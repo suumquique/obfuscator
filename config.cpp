@@ -2,12 +2,12 @@
 
 
 BOOL getCurrentFlagValue(wstring fullString) {
-	// Конец строки, показывающий, что значение флага установлено как true
+	// РљРѕРЅРµС† СЃС‚СЂРѕРєРё, РїРѕРєР°Р·С‹РІР°СЋС‰РёР№, С‡С‚Рѕ Р·РЅР°С‡РµРЅРёРµ С„Р»Р°РіР° СѓСЃС‚Р°РЅРѕРІР»РµРЅРѕ РєР°Рє true
 	wstring endings[] = { L"=true", L"=1" };
 
-	// Проходим все строки из массива endings
+	// РџСЂРѕС…РѕРґРёРј РІСЃРµ СЃС‚СЂРѕРєРё РёР· РјР°СЃСЃРёРІР° endings
 	for (wstring ending : endings) {
-		// Каждую строку сравниваем с концом полной строки конфига
+		// РљР°Р¶РґСѓСЋ СЃС‚СЂРѕРєСѓ СЃСЂР°РІРЅРёРІР°РµРј СЃ РєРѕРЅС†РѕРј РїРѕР»РЅРѕР№ СЃС‚СЂРѕРєРё РєРѕРЅС„РёРіР°
 		if (fullString.length() >= ending.length()) {
 			if (0 == fullString.compare(fullString.length() - ending.length(), ending.length(), ending)) return TRUE;
 		}
@@ -17,19 +17,19 @@ BOOL getCurrentFlagValue(wstring fullString) {
 }
 
 Config* parseConfigFile(wfstream& configFile) {
-	// Создаем экземпляр конфига и заполяем все поля нулями (то есть false)
+	// РЎРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ РєРѕРЅС„РёРіР° Рё Р·Р°РїРѕР»СЏРµРј РІСЃРµ РїРѕР»СЏ РЅСѓР»СЏРјРё (С‚Рѕ РµСЃС‚СЊ false)
 	Config* config = new Config;
 	memset(config, 0x00, sizeof(Config));
 
-	wstring currentConfigString; // Текущая строка конфига, из которогой будем парсить название флага и его значение
-	wstring currentFlag; // Строковое значение текущего флага
-	BOOL currentFlagValue; // Значение текущего флага (true или false)
+	wstring currentConfigString; // РўРµРєСѓС‰Р°СЏ СЃС‚СЂРѕРєР° РєРѕРЅС„РёРіР°, РёР· РєРѕС‚РѕСЂРѕРіРѕР№ Р±СѓРґРµРј РїР°СЂСЃРёС‚СЊ РЅР°Р·РІР°РЅРёРµ С„Р»Р°РіР° Рё РµРіРѕ Р·РЅР°С‡РµРЅРёРµ
+	wstring currentFlag; // РЎС‚СЂРѕРєРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ С„Р»Р°РіР°
+	BOOL currentFlagValue; // Р—РЅР°С‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ С„Р»Р°РіР° (true РёР»Рё false)
 
-	// Считываем конфиг построчно
+	// РЎС‡РёС‚С‹РІР°РµРј РєРѕРЅС„РёРі РїРѕСЃС‚СЂРѕС‡РЅРѕ
 	while (getline(configFile, currentConfigString)) {
-		// "Вырезаем" из начала строки название нашего флага
+		// "Р’С‹СЂРµР·Р°РµРј" РёР· РЅР°С‡Р°Р»Р° СЃС‚СЂРѕРєРё РЅР°Р·РІР°РЅРёРµ РЅР°С€РµРіРѕ С„Р»Р°РіР°
 		currentFlag = currentConfigString.substr(0, currentConfigString.find_first_of(L'='));
-		// Получаем текущее значение флага (true или false)
+		// РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ Р·РЅР°С‡РµРЅРёРµ С„Р»Р°РіР° (true РёР»Рё false)
 		currentFlagValue = getCurrentFlagValue(currentConfigString);
 
 		if (currentFlag == CONFIG_DELETE_COMMENTS) {
